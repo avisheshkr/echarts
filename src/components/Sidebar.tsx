@@ -69,7 +69,7 @@ const Sidebar = (props: any) => {
           </>
         )}
       </Box>
-      <Box p={2} pb={open ? 2 : 1}>
+      <Box p={3} pb={open ? 2 : 1}>
         {open && <ReusableButton text="View details" fullWidth />}
         <Typography variant="body2" fontWeight="700" mt={1} mb={0.5}>
           Legend
@@ -99,7 +99,7 @@ const Sidebar = (props: any) => {
         )}
       </Box>
       {!open && (
-        <Box bgcolor="#fff" mx={0.5} px={open ? 1 : 0}>
+        <Box bgcolor="#fff" mr={0.5} ml={3} px={open ? 1 : 0}>
           <MovementList name="Scans" color="rgba(75, 222, 129)" />
           <Divider />
           <MovementList name="Exits" color="rgba(249, 133, 133)" />
