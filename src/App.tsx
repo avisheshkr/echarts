@@ -6,6 +6,7 @@ import { useState } from "react";
 
 function App() {
   const [openTwoChart, setOpenTwoChart] = useState<boolean>(true);
+
   return (
     <Box display="flex">
       <MainLayout open={openTwoChart} />

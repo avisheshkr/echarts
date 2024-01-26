@@ -6,25 +6,53 @@ type EChartsProps = {
   chartOptions: any;
   width: string;
   open: boolean;
+  type?: string;
+  setSelectedChart?: React.Dispatch<
+    React.SetStateAction<echarts.ECharts | null>
+  >;
 };
 
-const ECharts = ({ chartOptions, width, open }: EChartsProps) => {
+const ECharts = ({
+  chartOptions,
+  width,
+  open,
+  setSelectedChart,
+}: EChartsProps) => {
   const chartRef = useRef<HTMLDivElement>(null);
+  const mainChartRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (mainChartRef.current) {
+      mainChartRef.current.setOption(chartOptions);
+    }
+  }, [chartOptions]);
 
   useEffect(() => {
     if (chartRef.current) {
       // Initialize ECharts
       const chart = echarts.init(chartRef.current);
 
+      mainChartRef.current = chart;
+
+      console.log(chart.getWidth());
+
+      const handleResize = () => {
+        chart.resize();
+      };
+
+      window.addEventListener("resize", handleResize);
+
       // Configure and set chart options
       const options: echarts.EChartOption = chartOptions;
 
       // Set the options to the chart
       chart.setOption(options);
+      setSelectedChart && setSelectedChart(chart);
 
       // Clean up ECharts instance when component unmounts
       return () => {
         chart.dispose();
+        window.removeEventListener("resize", handleResize);
       };
     }
   }, [open]);

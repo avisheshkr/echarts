@@ -2,9 +2,14 @@ import { Add, ArrowDropDown, CalendarToday } from "@mui/icons-material";
 import { Box, Typography } from "@mui/material";
 import ReusableButton from "./ReusableButton";
 import ECharts from "./ECharts";
-import { optionsForNegative } from "../data/dataForBarNegative";
-import { optionForYcategory } from "../data/dataForYcategory";
-import { optionsWaterfall } from "../data/waterfallData";
+import {
+  generateOptionsForNegativeBar,
+  generateOptionsForWaterfall,
+  generateOptionsForYCategory,
+} from "../utils/generateOptions";
+import { data, data2 } from "../data/data";
+import { useState } from "react";
+import * as echarts from "echarts";
 
 // type openProps = {
 //   open: boolean,
@@ -13,6 +18,9 @@ import { optionsWaterfall } from "../data/waterfallData";
 
 const MainLayout = (props: any) => {
   const { open } = props;
+  const [selectedChart, setSelectedChart] = useState<echarts.ECharts | null>(
+    null
+  );
   return (
     <Box flex={1} p={3}>
       {open ? (
@@ -80,53 +88,30 @@ const MainLayout = (props: any) => {
         mt={3}
         width="100%"
         justifyContent="space-between"
-        position="relative"
+        // position="relative"
       >
         {open ? (
           <>
             <ECharts
-              chartOptions={optionForYcategory}
+              chartOptions={generateOptionsForYCategory(data)}
               width="50%"
               open={open}
             />
             <ECharts
-              chartOptions={optionsForNegative}
+              chartOptions={generateOptionsForNegativeBar(data)}
               width="50%"
               open={open}
             />
           </>
         ) : (
           <>
-            <Typography
-              position="absolute"
-              right={15}
-              bottom={205}
-              textAlign="center"
-              lineHeight={1}
-            >
-              <strong>5.23k</strong>
-              <br />
-              <Typography component="span" fontSize={12} fontWeight="300">
-                Ending
-                <br />
-                Headcount
-              </Typography>
-            </Typography>
-            <Typography
-              position="absolute"
-              bottom={0}
-              textAlign="center"
-              lineHeight={1}
-            >
-              <strong>4.85k</strong>
-              <br />
-              <Typography component="span" fontSize={12} fontWeight="300">
-                Ending
-                <br />
-                Headcount
-              </Typography>
-            </Typography>
-            <ECharts chartOptions={optionsWaterfall} width="100%" open={open} />
+            <ECharts
+              chartOptions={generateOptionsForWaterfall(data2, selectedChart)}
+              type="waterfall"
+              width="100%"
+              open={open}
+              setSelectedChart={setSelectedChart}
+            />
           </>
         )}
       </Box>
