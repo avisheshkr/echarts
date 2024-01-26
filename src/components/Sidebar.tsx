@@ -3,9 +3,10 @@ import SummaryTable from "./SummaryTable";
 import ReusableButton from "./ReusableButton";
 import IconMenu from "./IconMenu";
 import MovementList from "./MovementList";
+import { data, data2 } from "../data/data";
 
 const Sidebar = (props: any) => {
-  const { open, setOpen } = props;
+  const { open, setOpen, setData } = props;
 
   return (
     <Box
@@ -109,6 +110,14 @@ const Sidebar = (props: any) => {
           <MovementList name="Net Change" color="#93C5FD" />
         </Box>
       )}
+      <Box display="flex" justifyContent="center" gap={2} mt={5}>
+        <Button variant="outlined" onClick={() => setData(data)}>
+          Data1
+        </Button>
+        <Button variant="outlined" onClick={() => setData(data2)}>
+          Data2
+        </Button>
+      </Box>
     </Box>
   );
 };

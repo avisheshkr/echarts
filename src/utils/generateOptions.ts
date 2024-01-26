@@ -75,7 +75,7 @@ export function generateOptionsForYCategory(data: any) {
 
 export function generateOptionsForNegativeBar(data: any) {
   const keys = Object.keys(data[0]);
-  const dataSet = data.map((item: any) => {
+  const dataSet = data?.map((item: any) => {
     return [item[keys[0]], item[keys[2]] - item[keys[1]]];
   });
   return {
@@ -138,8 +138,7 @@ export function generateOptionsForNegativeBar(data: any) {
   };
 }
 
-export function generateOptionsForWaterfall(data: any, selectedChart: any) {
-  console.log({ selectedChart: selectedChart?._api?.getWidth() });
+export function generateOptionsForWaterfall(data: any, chartWidth: any) {
   const key0 = Object.keys(data[0])[0];
   const key1 = Object.keys(data[0])[1];
   const key2 = Object.keys(data[0])[2];
@@ -227,21 +226,17 @@ export function generateOptionsForWaterfall(data: any, selectedChart: any) {
     },
   ];
 
+  const peakHeight = barFormingData?.slice().sort((a: any, b: any) => {
+    return b - a;
+  })[0];
+  const netHeight = Math.abs((netChange / peakHeight) * 100);
+
   const xAxisData = [
     ...sortedDifferenceData.map((data: any) => {
       return data?.category;
     }),
     "Net Change",
   ];
-
-  console.log({ netData });
-
-  console.log({
-    sortedDifferenceData,
-    positiveData,
-    negativeData,
-    barFormingData,
-  });
 
   // const pipe2Width =
   //   ((0.8 * secondLength) / (firstLength + secondLength + 1)) *
@@ -253,38 +248,37 @@ export function generateOptionsForWaterfall(data: any, selectedChart: any) {
   // const pipe2Left = 10 + ((pipe1Width + 10) / chart.offsetWidth) * 100;
 
   const generateGraphic = () => {
-    const width = Number(Math.floor(selectedChart?._api?.getWidth()));
+    const width = Number(chartWidth);
     const length1 = positiveData.filter((p: any) => p !== "-").length;
     const length2 = negativeData.filter((p: any) => p !== "-").length;
 
-    const firstLength = netChange > 0 ? length1 : length2;
-    const secondLength = netChange > 0 ? length2 : length1;
+    const firstLength = length1;
+    const secondLength = length2;
 
     const width1 =
       ((0.85 * firstLength) / (secondLength + firstLength + 1)) * width;
     const width2 =
       ((0.85 * secondLength) / (firstLength + secondLength + 1)) * width;
 
-    const pipe1Left = 10 + (10 / width) * 100;
-    const pipe2Left = 10 + ((width1 + 10) / width) * 100;
-
-    console.log({
-      width,
-      length1,
-      length2,
-      width1,
-      width2,
-      pipe1Left,
-      pipe2Left,
-    });
+    // const pipe1Left = 10 + (10 / width) * 100;
+    // const pipe2Left = 10 + ((width1 + 10) / width) * 100;
+    const startingCount = data.reduce(
+      (acc: any, item: any) => acc + item[key1],
+      0
+    );
+    const endingCount = data.reduce(
+      (acc: any, item: any) => acc + item[key2],
+      0
+    );
 
     return [
       {
         type: "text",
         left: "0%",
-        bottom: "5%",
+        bottom: "10%",
         style: {
-          text: "{a|4.85k}\n{b|Starting\nHeadcount}",
+          // text: "{a|4.85k}\n{b|Starting\nHeadcount}",
+          text: `{a|${(startingCount / 1000).toFixed(2)}k}\n{b|${key1}}`,
           rich: {
             a: {
               fontSize: 14,
@@ -305,9 +299,10 @@ export function generateOptionsForWaterfall(data: any, selectedChart: any) {
       {
         type: "text",
         right: "0%",
-        bottom: "40%",
+        bottom: `${netHeight * 0.75 + 10}%`,
         style: {
-          text: "{a|5.23k}\n{b|Ending\nHeadcount}",
+          // text: "{a|5.23k}\n{b|Ending\nHeadcount}",
+          text: `{a|${(endingCount / 1000).toFixed(2)}k}\n{b|${key2}}`,
           rich: {
             a: {
               fontSize: 14,
@@ -328,16 +323,16 @@ export function generateOptionsForWaterfall(data: any, selectedChart: any) {
       {
         type: "group",
         bottom: 0,
-        left: 500,
+        left: width1 + width / 10 - 5,
         children: [
           {
             type: "line",
             shape: {
-              x1: width1,
+              x1: 0,
               y1: 0,
-              x2: width2,
+              x2: width2 - 18,
               // (xAxisData[0] / (xAxisData.length - 1)) *
-              // selectedChart?._api?.getWidth() * 0.67 * 2,
+              // chartWidth?._api?.getWidth() * 0.67 * 2,
               y2: 0,
             },
             style: {
@@ -347,13 +342,13 @@ export function generateOptionsForWaterfall(data: any, selectedChart: any) {
           },
           {
             type: "text",
-            left: 200,
+            left: width2 / 2 - 35,
             // (xAxisData[0] / (xAxisData.length - 1)) *
-            //   (selectedChart?._api?.getWidth() * 0.67) -
+            //   (chartWidth?._api?.getWidth() * 0.67) -
             // 30,
             top: 10,
             style: {
-              text: "INCOMING",
+              text: netChange > 0 ? "OUTGOING" : "INCOMING",
               fontSize: 11,
               align: "center",
               fontWeight: "lighter",
@@ -365,22 +360,16 @@ export function generateOptionsForWaterfall(data: any, selectedChart: any) {
       },
       {
         type: "group",
-        bottom: "0%",
-        left: "10%",
-        // (xAxisData[0] / (xAxisData.length - 1)) *
-        // (selectedChart?._api?.getWidth() * 0.67) *
-        // 2 *
-        // 1.4,
+        bottom: 0,
+        left: "10.5%",
         children: [
           {
             type: "line",
             shape: {
-              x1: 10,
+              x1: 0,
               y1: 0,
-              x2: width1 - 10,
-              // (xAxisData[0] / (xAxisData.length - 1)) *
-              // (selectedChart?._api?.getWidth() * 0.67) *
-              // 2,
+              x2: width1 - 25,
+              // x2: width1 - 10,
               y2: 0,
             },
             style: {
@@ -390,13 +379,10 @@ export function generateOptionsForWaterfall(data: any, selectedChart: any) {
           },
           {
             type: "text",
-            left: 200,
-            // (xAxisData[0] / (xAxisData.length - 1)) *
-            //   (selectedChart?._api?.getWidth() * 0.67) -
-            // 30,
+            left: width1 / 2 - 35,
             top: 10,
             style: {
-              text: "OUTGOING",
+              text: netChange > 0 ? "INCOMING" : "OUTGOING",
               fontSize: 11,
               align: "center",
               fontWeight: "lighter",
@@ -428,7 +414,7 @@ export function generateOptionsForWaterfall(data: any, selectedChart: any) {
     grid: {
       left: "6%",
       right: "7%",
-      bottom: "3%",
+      bottom: "7%",
       containLabel: true,
     },
     xAxis: {
@@ -436,7 +422,8 @@ export function generateOptionsForWaterfall(data: any, selectedChart: any) {
       data: xAxisData,
       axisLabel: {
         interval: 0,
-        rotate: 15,
+        hideOverlap: true,
+        // rotate: 15,
       },
     },
     yAxis: {

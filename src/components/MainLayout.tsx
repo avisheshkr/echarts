@@ -7,9 +7,8 @@ import {
   generateOptionsForWaterfall,
   generateOptionsForYCategory,
 } from "../utils/generateOptions";
-import { data, data2 } from "../data/data";
+// import { data, data2 } from "../data/data";
 import { useState } from "react";
-import * as echarts from "echarts";
 
 // type openProps = {
 //   open: boolean,
@@ -17,10 +16,9 @@ import * as echarts from "echarts";
 // }
 
 const MainLayout = (props: any) => {
-  const { open } = props;
-  const [selectedChart, setSelectedChart] = useState<echarts.ECharts | null>(
-    null
-  );
+  const { open, data } = props;
+  const [chartWidth, setChartWidth] = useState<any>(null);
+
   return (
     <Box flex={1} p={3}>
       {open ? (
@@ -106,11 +104,11 @@ const MainLayout = (props: any) => {
         ) : (
           <>
             <ECharts
-              chartOptions={generateOptionsForWaterfall(data2, selectedChart)}
+              chartOptions={generateOptionsForWaterfall(data, chartWidth)}
               type="waterfall"
               width="100%"
               open={open}
-              setSelectedChart={setSelectedChart}
+              setChartWidth={setChartWidth}
             />
           </>
         )}
